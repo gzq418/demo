@@ -2,6 +2,7 @@ package com.example.controller;
 
 
 import java.io.*;
+import java.net.URLDecoder;
 
 import com.example.demo.ResultVO;
 import com.example.entity.Book;
@@ -15,11 +16,14 @@ import org.springframework.web.multipart.commons.CommonsFileUploadSupport;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.swing.text.View;
 
 @Controller
 @RestController
+
 public class FileUpload {
 
     @RequestMapping(value ={"/upload"} ,method = RequestMethod.GET)
@@ -61,9 +65,9 @@ public class FileUpload {
             }
         return new ResultVO(200,"success",filepath);
     }
-    @RequestMapping(value = {"/uploadfile"})
-    public String uploadfile(@RequestParam("file") MultipartFile file) throws IOException {
-//        request.setCharacterEncoding("utf-8");
+    @RequestMapping(value = {"/uploadfile"})                                                       @ResponseBody
+    public String uploadfile(@RequestParam("file") MultipartFile file,HttpServletRequest request) throws IOException {
+        request.setCharacterEncoding("utf-8");
         String filename=file.getOriginalFilename();
         if("".equals(filename)){
             return "upload";
@@ -89,9 +93,25 @@ public class FileUpload {
         return "success";
     }
     @RequestMapping(value = {"downloadfile"})
-    public String download(){
+    public String download(HttpServletResponse response) throws IOException {
         String path="D:\\";
-
+        String filename="hello.txt";
+        File file1=new File(path,filename);
+        response.reset();
+        response.setCharacterEncoding("utf-8");
+        //二进制流传输数据
+        response.setContentType("multipart/form-data");
+        response.setHeader("Content-Disposition","attachment;filename="+ URLDecoder.decode(filename,"utf-8"));
+        FileInputStream in=new FileInputStream(file1);
+        ServletOutputStream outputStream=response.getOutputStream();
+        int len=0;
+        byte[] bytes=new byte[1024];
+        while((len=in.read(bytes))!=-1){
+            outputStream.write(bytes,0,len);
+            outputStream.flush();
+        }
+        in.close();
+        outputStream.close();
         return "download";
     }
 }
