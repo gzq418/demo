@@ -7,7 +7,7 @@
     <title>Insert title here</title>
 </head>
 <body>
-<form action="gotoAction" enctype="multipart/form-data" method="post">
+<form action="${pageContext.request.contextPath}/uploadfile" enctype="multipart/form-data" method="post">
     <table>
         <tr>
             <td>请选择文件：</td>
